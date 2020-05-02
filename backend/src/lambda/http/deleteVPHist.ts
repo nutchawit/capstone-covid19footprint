@@ -4,32 +4,32 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } f
 import * as AWS  from 'aws-sdk'
 
 const docClient = new AWS.DynamoDB.DocumentClient()
-const todosTable = process.env.TODOS_TABLE
+const VPHistTable = process.env.HISTORY_TABLE
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  const todoId = event.pathParameters.todoId
+  const historyId = event.pathParameters.historyId
 
-  console.log('Delete TODO', todoId)
+  console.log('Delete VPHist', historyId)
 
   const todoById = await docClient.query({
-    TableName : todosTable,
-    KeyConditionExpression: 'todoId = :todoId',
+    TableName : VPHistTable,
+    KeyConditionExpression: 'historyId = :historyId',
     ExpressionAttributeValues: {
-        ':todoId': todoId
+        ':historyId': historyId
     }
   }).promise()
 
-  const todoTmp = todoById.Items[0]
-  console.log(todoTmp)
+  const VPHistTmp = todoById.Items[0]
+  console.log(VPHistTmp)
 
-  console.log('Delete TODO by userId=', todoTmp.userId, ', createdAt=', todoTmp.createdAt)
+  console.log('Delete TODO by userId=', VPHistTmp.userId, ', createdAt=', VPHistTmp.createdAt)
 
   await docClient
   .delete({
-    TableName: todosTable,
+    TableName: VPHistTable,
     Key: {
-      "todoId" : todoTmp.todoId,
-      "createdAt" : todoTmp.createdAt
+      "historyId" : VPHistTmp.historyId,
+      "createdAt" : VPHistTmp.createdAt
     }})
   .promise()
 

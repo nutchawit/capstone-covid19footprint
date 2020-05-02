@@ -14,9 +14,9 @@ provider:
   region: ${opt:region, 'us-west-2'}
 
   environment:
-    TODOS_TABLE: todo
-    TODOS_IDX_NAME: todo-scnd-idx
-    IMAGES_S3_BUCKET: sl-todo-images-${self:provider.stage}
+    HISTORY_TABLE: vphist-${self:provider.stage}
+    HISTORY_IDX_NAME: vphist-scnd-idx-${self:provider.stage}
+    IMAGES_S3_BUCKET: vphist-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
 
   iamRoleStatements:
@@ -26,11 +26,11 @@ provider:
         - dynamodb:Query
         - dynamodb:DeleteItem
         - dynamodb:UpdateItem
-      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.HISTORY_TABLE}
     - Effect: Allow
       Action:
         - dynamodb:Query
-      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_IDX_NAME}
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.HISTORY_TABLE}/index/${self:provider.environment.HISTORY_IDX_NAME}
     - Effect: Allow
       Action:
         - s3:PutObject
@@ -42,15 +42,15 @@ custom:
     api:
       info:
         version: v1.0.0
-        title: Udagram Todo API
+        title: Udagram VPHist API
         description: Serverless application for Todo
     models:
-      - name: CreateTodoRequest
+      - name: CreateVPHistRequest
         contentType: application/json
-        schema: ${file(src/requests/create-todo-request.json)}
-      - name: UpdateTodoRequest
+        schema: ${file(src/requests/create-vp-hist-request.json)}
+      - name: UpdateVPHistRequest
         contentType: application/json
-        schema: ${file(src/requests/update-todo-request.json)}
+        schema: ${file(src/requests/update-vp-hist-request.json)}
 
 functions:
 
@@ -59,53 +59,53 @@ functions:
 
   # TODO: Configure this function
   GetTodos:
-    handler: src/lambda/http/getTodos.handler
+    handler: src/lambda/http/getVPHist.handler
     events:
       - http:
           method: get
           authorizer: Auth
-          path: todos
+          path: vphist
           cors: true
 
   # TODO: Configure this function
   CreateTodo:
-    handler: src/lambda/http/createTodo.handler
+    handler: src/lambda/http/createVPHist.handler
     events:
       - http:
           method: post
-          path: todos
+          path: vphist
           cors: true
           authorizer: Auth
           reqValidatorName: RequestBodyValidator
           documentation:
-            summary: Create a new todo
-            description: Create a new todo
+            summary: Create a new VPHist
+            description: Create a new VPHist
             requestModels:
-              'application/json': CreateTodoRequest
+              'application/json': CreateVPHistRequest
 
   # TODO: Configure this function
   UpdateTodo:
-    handler: src/lambda/http/updateTodo.handler
+    handler: src/lambda/http/updateVPHist.handler
     events:
       - http:
           method: patch
-          path: todos/{todoId}
+          path: vphist/{historyId}
           authorizer: Auth
           cors: true
           reqValidatorName: RequestBodyValidator
           documentation:
-            summary: Update todo
-            description: Update todo
+            summary: Update VPHist
+            description: Update VPHist
             requestModels:
-              'application/json': UpdateTodoRequest
+              'application/json': UpdateVPHistRequest
 
   # TODO: Configure this function
   DeleteTodo:
-    handler: src/lambda/http/deleteTodo.handler
+    handler: src/lambda/http/deleteVPHist.handler
     events:
       - http:
           method: delete
-          path: todos/{todoId}
+          path: vphist/{historyId}
           authorizer: Auth
           cors: true
 
@@ -115,7 +115,7 @@ functions:
     events:
       - http:
           method: post
-          path: todos/{todoId}/attachment
+          path: vphist/{historyId}/attachment
           authorizer: Auth
           cors: true
 
@@ -141,19 +141,19 @@ resources:
             AttributeType: S
           - AttributeName: createdAt
             AttributeType: S
-          - AttributeName: todoId
+          - AttributeName: historyId
             AttributeType: S
         KeySchema:
-          - AttributeName: todoId
+          - AttributeName: historyId
             KeyType: HASH
           - AttributeName: createdAt
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         StreamSpecification:
           StreamViewType: NEW_IMAGE
-        TableName: ${self:provider.environment.TODOS_TABLE}
+        TableName: ${self:provider.environment.HISTORY_TABLE}
         GlobalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.TODOS_IDX_NAME}
+          - IndexName: ${self:provider.environment.HISTORY_IDX_NAME}
             KeySchema:
               - AttributeName: userId
                 KeyType: HASH

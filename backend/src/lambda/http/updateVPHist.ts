@@ -1,42 +1,16 @@
 import 'source-map-support/register'
+import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
+import { UpdateVPHistRequest } from '../../requests/UpdateVPHistRequest'
 import * as AWS  from 'aws-sdk'
-
-import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
-
-const bucketName = process.env.IMAGES_S3_BUCKET
-const urlExpiration = parseInt(process.env.SIGNED_URL_EXPIRATION)
-
-const s3 = new AWS.S3({
-  signatureVersion: 'v4'
-})
 
 const docClient = new AWS.DynamoDB.DocumentClient()
 const VPHistTable = process.env.HISTORY_TABLE
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  console.log('Updating VPHist')
+
   const historyId = event.pathParameters.historyId
-
-  // TODO: Return a presigned URL to upload a file for a TODO item with the provided id
-  console.log('Generate upload URL', historyId)
-
-  const url = getUploadUrl(historyId)
-
-  await updateImageUrl(historyId)
-
-  return {
-    statusCode: 201,
-    headers: {
-      'Access-Control-Allow-Origin': '*'
-    },
-    body: JSON.stringify({
-      uploadUrl: url
-    })
-  }
-}
-
-async function updateImageUrl(historyId: string){
-  const imageId = historyId
-  const imageUrl = `https://${bucketName}.s3.amazonaws.com/${imageId}`
+  const updatedTodo: UpdateVPHistRequest = JSON.parse(event.body)
 
   const existingTodos = await docClient.query({
     TableName : VPHistTable,
@@ -60,8 +34,10 @@ async function updateImageUrl(historyId: string){
     }})
   .promise()
 
-  console.log('Update new VPHist imageUrl=', imageUrl)
-  existingVPHist.attachmentUrl = imageUrl
+  console.log('Update new VPHist property')
+  existingVPHist.name = updatedTodo.name
+  existingVPHist.dueDate = updatedTodo.dueDate
+  existingVPHist.done = updatedTodo.done
 
   console.log('Create VPHist by historyId=', existingVPHist.historyId, ', createdAt=', existingVPHist.createdAt)
   await docClient
@@ -70,12 +46,12 @@ async function updateImageUrl(historyId: string){
     Item: existingVPHist
   })
   .promise()
-}
 
-function getUploadUrl(imageId: string) {
-  return s3.getSignedUrl('putObject', {
-    Bucket: bucketName,
-    Key: imageId,
-    Expires: urlExpiration
-  })
+  return {
+    statusCode: 201,
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    },
+    body: ""
+  }
 }

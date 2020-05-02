@@ -5,8 +5,8 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } f
 
 const docClient = new AWS.DynamoDB.DocumentClient()
 
-const todosTable = process.env.TODOS_TABLE
-const todosScndIdx = process.env.TODOS_IDX_NAME
+const VPHistTable = process.env.HISTORY_TABLE
+const VPHistScndIdx = process.env.HISTORY_IDX_NAME
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   console.log('Processing Get TODO')
@@ -17,9 +17,9 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
   const userId = parseUserId(jwtToken)
 
-  console.log('Get TODO by userId=', userId)
+  console.log('Get VPHist by userId=', userId)
 
-  const todos = await getTodosByUserId(userId)
+  const todos = await getVPHistByUserId(userId)
 
   return {
     statusCode: 201,
@@ -32,10 +32,10 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   }
 }
 
-async function getTodosByUserId(userId: string) {
+async function getVPHistByUserId(userId: string) {
   const result = await docClient.query({
-    TableName: todosTable,
-    IndexName : todosScndIdx,
+    TableName: VPHistTable,
+    IndexName : VPHistScndIdx,
     KeyConditionExpression: 'userId = :userId',
     ExpressionAttributeValues: {
       ':userId': userId

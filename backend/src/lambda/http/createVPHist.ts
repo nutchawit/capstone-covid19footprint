@@ -1,15 +1,15 @@
 import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
-import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
+import { CreateVPHistRequest } from '../../requests/CreateVPHistRequest'
 import { parseUserId } from '../../auth/utils'
 import * as uuid from 'uuid'
 import * as AWS  from 'aws-sdk'
 
 const docClient = new AWS.DynamoDB.DocumentClient()
-const todosTable = process.env.TODOS_TABLE
+const VPHistTable = process.env.HISTORY_TABLE
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  console.log('Creating TODO')
+  console.log('Creating VPHist')
 
   const authorization = event.headers.Authorization
   const split = authorization.split(' ')
@@ -17,23 +17,23 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
   const userId = parseUserId(jwtToken)
 
-  const newTodo: CreateTodoRequest = JSON.parse(event.body)
+  const newVPHist: CreateVPHistRequest = JSON.parse(event.body)
 
-  const todoId = uuid.v4()
+  const historyId = uuid.v4()
   const createdAt = new Date().toISOString()
 
   const newItem = {
     userId,
-    todoId,
+    historyId,
     createdAt,
-    ...newTodo
+    ...newVPHist
   }
 
-  console.log('Creating todo=', newItem)
+  console.log('Creating VPHist=', newItem)
 
   await docClient
     .put({
-      TableName: todosTable,
+      TableName: VPHistTable,
       Item: newItem
     })
     .promise()
