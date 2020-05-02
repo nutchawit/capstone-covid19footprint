@@ -1,7 +1,7 @@
 {
-  "name": "serverless-todo-app",
+  "name": "cv19footprint-backend",
   "version": "1.0.0",
-  "description": "Serverless TODO image app",
+  "description": "Serverless Covid19 Footprint",
   "dependencies": {
     "@types/axios": "^0.14.0",
     "@types/http-errors": "^1.6.3",
@@ -28,6 +28,6 @@
     "typescript": "^3.8.3",
     "webpack": "^4.42.0"
   },
-  "author": "Ivan Mushketyk",
-  "license": "MIT"
+  "author": "Nutchawit Pimpakan",
+  "license": "dtac"
 }

@@ -1,5 +1,5 @@
 service:
-  name: serverless-todo-app
+  name: cv19footprint-backend
 
 plugins:
   - serverless-webpack
