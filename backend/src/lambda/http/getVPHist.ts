@@ -9,7 +9,7 @@ const VPHistTable = process.env.HISTORY_TABLE
 const VPHistScndIdx = process.env.HISTORY_IDX_NAME
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  console.log('Processing Get TODO')
+  console.log('Processing Get VPHist')
 
   const authorization = event.headers.Authorization
   const split = authorization.split(' ')
@@ -19,15 +19,15 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
   console.log('Get VPHist by userId=', userId)
 
-  const todos = await getVPHistByUserId(userId)
+  const vphists = await getVPHistByUserId(userId)
 
   return {
-    statusCode: 201,
+    statusCode: 200,
     headers: {
       'Access-Control-Allow-Origin': '*'
     },
     body: JSON.stringify({
-      items: todos
+      items: vphists
     })
   }
 }

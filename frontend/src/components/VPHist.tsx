@@ -133,7 +133,7 @@ export class VPHists extends React.PureComponent<VPHistProps, VPHistState> {
               color: 'teal',
               labelPosition: 'left',
               icon: 'add',
-              content: 'New task',
+              content: 'Checked-In',
               onClick: this.onVPHistCreate
             }}
             fluid

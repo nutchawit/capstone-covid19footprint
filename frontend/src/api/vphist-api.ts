@@ -10,6 +10,7 @@ export async function getVPHist(idToken: string): Promise<VPHist[]> {
   const response = await Axios.get(`${apiEndpoint}/vphist`, {
     headers: {
       'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
       'Authorization': `Bearer ${idToken}`
     },
   })
@@ -24,6 +25,7 @@ export async function createVPHist(
   const response = await Axios.post(`${apiEndpoint}/vphist`,  JSON.stringify(newVPHist), {
     headers: {
       'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
       'Authorization': `Bearer ${idToken}`
     }
   })
