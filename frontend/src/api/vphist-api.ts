@@ -64,8 +64,8 @@ export async function getUploadUrl(
   const response = await Axios.post(`${apiEndpoint}/vphist/${historyId}/attachment`, '', {
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${idToken}`,
-      'Access-Control-Allow-Origin': '*'
+      'Access-Control-Allow-Origin': '*',
+      'Authorization': `Bearer ${idToken}`
     }
   })
   return response.data.uploadUrl

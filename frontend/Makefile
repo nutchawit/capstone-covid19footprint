@@ -7,4 +7,4 @@ remove:
 run:
 	docker run --name cv19fp-frontend -p 3000:3000 -d cv19fp-frontend
 
-all: build remove run
+all: remove build run

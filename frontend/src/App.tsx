@@ -7,6 +7,7 @@ import { EditTodo } from './components/EditTodo'
 import { LogIn } from './components/LogIn'
 import { NotFound } from './components/NotFound'
 import { VPHists } from './components/VPHist'
+import { AddVPHist } from './components/AddVPHist'
 
 export interface AppProps {}
 
@@ -57,7 +58,7 @@ export default class App extends Component<AppProps, AppState> {
     return (
       <Menu>
         <Menu.Item name="home">
-          <Link to="/">Home</Link>
+          <Link to="/vphist">Home</Link>
         </Menu.Item>
 
         <Menu.Menu position="right">{this.logInLogOutButton()}</Menu.Menu>
@@ -93,6 +94,22 @@ export default class App extends Component<AppProps, AppState> {
           exact
           render={props => {
             return <VPHists {...props} auth={this.props.auth} />
+          }}
+        />
+
+        <Route
+          path="/vphist"
+          exact
+          render={props => {
+            return <VPHists {...props} auth={this.props.auth} />
+          }}
+        />
+
+        <Route
+          path="/vphist/add"
+          exact
+          render={props => {
+            return <AddVPHist {...props} auth={this.props.auth} />
           }}
         />
 

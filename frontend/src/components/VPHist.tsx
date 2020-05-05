@@ -4,7 +4,6 @@ import update from 'immutability-helper'
 import * as React from 'react'
 import {
   Button,
-  Checkbox,
   Divider,
   Grid,
   Header,
@@ -48,6 +47,10 @@ export class VPHists extends React.PureComponent<VPHistProps, VPHistState> {
 
   onEditButtonClick = (historyId: string) => {
     this.props.history.push(`/vphist/${historyId}/edit`)
+  }
+
+  onCreateButtonClick = () => {
+    this.props.history.push(`/vphist/add`)
   }
 
   onVPHistCreate = async (event: React.ChangeEvent<HTMLButtonElement>) => {
@@ -128,19 +131,13 @@ export class VPHists extends React.PureComponent<VPHistProps, VPHistState> {
     return (
       <Grid.Row>
         <Grid.Column width={16}>
-          <Input
-            action={{
-              color: 'teal',
-              labelPosition: 'left',
-              icon: 'add',
-              content: 'Checked-In',
-              onClick: this.onVPHistCreate
-            }}
-            fluid
-            actionPosition="left"
-            placeholder="To change the world..."
-            onChange={this.handleNameChange}
-          />
+          <Button
+            icon
+            color="green"
+            onClick={() => this.onCreateButtonClick()}
+            >
+            <Icon name="pencil" />
+          </Button>
         </Grid.Column>
         <Grid.Column width={16}>
           <Divider />
