@@ -14,28 +14,28 @@ provider:
   region: ${opt:region, 'us-west-2'}
 
   environment:
-    HISTORY_TABLE: vphist-${self:provider.stage}
-    HISTORY_IDX_NAME: vphist-scnd-idx-${self:provider.stage}
-    IMAGES_S3_BUCKET: vphist-images-${self:provider.stage}
+    HISTORY_TABLE: vphist0-${self:provider.stage}
+    HISTORY_IDX_NAME: vphist0-scnd-idx-${self:provider.stage}
+    IMAGES_S3_BUCKET: vphist0-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
 
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:PutItem
-        - dynamodb:Query
-        - dynamodb:DeleteItem
-        - dynamodb:UpdateItem
-      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.HISTORY_TABLE}
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.HISTORY_TABLE}/index/${self:provider.environment.HISTORY_IDX_NAME}
-    - Effect: Allow
-      Action:
-        - s3:PutObject
-        - s3:GetObject
-      Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
+#  iamRoleStatements:
+#    - Effect: Allow
+#      Action:
+#        - dynamodb:PutItem
+#        - dynamodb:Query
+#        - dynamodb:DeleteItem
+#        - dynamodb:UpdateItem
+#      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.HISTORY_TABLE}
+#    - Effect: Allow
+#      Action:
+#        - dynamodb:Query
+#      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.HISTORY_TABLE}/index/${self:provider.environment.HISTORY_IDX_NAME}
+#    - Effect: Allow
+#      Action:
+#        - s3:PutObject
+#        - s3:GetObject
+#      Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
 
 custom:
   documentation:
@@ -43,7 +43,7 @@ custom:
       info:
         version: v1.0.0
         title: Udagram VPHist API
-        description: Serverless application for Todo
+        description: Serverless application for VPHist
     models:
       - name: CreateVPHistRequest
         contentType: application/json
@@ -58,7 +58,7 @@ functions:
     handler: src/lambda/auth/auth0Authorizer.handler
 
   # TODO: Configure this function
-  GetTodos:
+  GetVPHist:
     handler: src/lambda/http/getVPHist.handler
     events:
       - http:
@@ -66,9 +66,15 @@ functions:
           authorizer: Auth
           path: vphist
           cors: true
+    iamRoleStatementsName: get-vphist-role
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.HISTORY_TABLE}/index/${self:provider.environment.HISTORY_IDX_NAME}
 
   # TODO: Configure this function
-  CreateTodo:
+  CreateVPHist:
     handler: src/lambda/http/createVPHist.handler
     events:
       - http:
@@ -82,9 +88,15 @@ functions:
             description: Create a new VPHist
             requestModels:
               'application/json': CreateVPHistRequest
+    iamRoleStatementsName: create-vphist-role
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.HISTORY_TABLE}
 
   # TODO: Configure this function
-  UpdateTodo:
+  UpdateVPHist:
     handler: src/lambda/http/updateVPHist.handler
     events:
       - http:
@@ -98,9 +110,17 @@ functions:
             description: Update VPHist
             requestModels:
               'application/json': UpdateVPHistRequest
+    iamRoleStatementsName: update-vphist-role
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:Query
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.HISTORY_TABLE}
 
   # TODO: Configure this function
-  DeleteTodo:
+  DeleteVPHist:
     handler: src/lambda/http/deleteVPHist.handler
     events:
       - http:
@@ -108,6 +128,13 @@ functions:
           path: vphist/{historyId}
           authorizer: Auth
           cors: true
+    iamRoleStatementsName: delete-vphist-role
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.HISTORY_TABLE}
 
   # TODO: Configure this function
   GenerateUploadUrl:
@@ -118,6 +145,19 @@ functions:
           path: vphist/{historyId}/attachment
           authorizer: Auth
           cors: true
+    iamRoleStatementsName: gen-upload-file-role
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+          - s3:GetObject
+        Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:Query
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.HISTORY_TABLE}
 
 resources:
   Resources:
@@ -144,7 +184,7 @@ resources:
         RestApiId:
           Ref: ApiGatewayRestApi
 
-    TodosTable:
+    VPHistTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:

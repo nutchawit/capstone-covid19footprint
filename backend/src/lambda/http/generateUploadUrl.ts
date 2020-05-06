@@ -27,7 +27,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     statusCode: 201,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Authorization,Content-Type,Access-Control-Allow-Origin'
+      'Access-Control-Allow-Headers': 'Authorization,Content-Type,Access-Control-Allow-Origin',
+      'Access-Control-Allow-Methods': 'GET,POST,PATCH,DELETE,OPTIONS'
     },
     body: JSON.stringify({
       uploadUrl: url
