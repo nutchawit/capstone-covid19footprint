@@ -13,7 +13,7 @@ import {
   Loader
 } from 'semantic-ui-react'
 
-import { createVPHist, deleteVPHist, getVPHist, patchVPHist } from '../api/vphist-api'
+import { createVPHist, deleteVPHist, getVPHistList, patchVPHist } from '../api/vphist-api'
 import Auth from '../auth/Auth'
 import { VPHist } from '../types/VPHist'
 
@@ -84,28 +84,9 @@ export class VPHists extends React.PureComponent<VPHistProps, VPHistState> {
     }
   }
 
-  onVPHistCheck = async (pos: number) => {
-    try {
-      const vph = this.state.vPHist[pos]
-      await patchVPHist(this.props.auth.getIdToken(), vph.historyId, {
-        name: vph.name,
-        purpose: vph.purpose,
-        coordinateLat: vph.coordinateLat,
-        coordinateLng: vph.coordinateLng
-      })
-      this.setState({
-        vPHist: update(this.state.vPHist, {
-          [pos]: { name: { $set: vph.name } }
-        })
-      })
-    } catch {
-      alert('[onVPHistCheck] VPHist deletion failed')
-    }
-  }
-
   async componentDidMount() {
     try {
-      const vPHist = await getVPHist(this.props.auth.getIdToken())
+      const vPHist = await getVPHistList(this.props.auth.getIdToken())
       this.setState({
         vPHist,
         loadingVPHist: false
@@ -166,20 +147,25 @@ export class VPHists extends React.PureComponent<VPHistProps, VPHistState> {
 
   renderVPHistList() {
     return (
-      <Grid padded>
+      <Grid columns={15}>
         {this.state.vPHist.map((vph, pos) => {
           return (
             <Grid.Row key={vph.historyId}>
-              <Grid.Column width={2} verticalAlign="middle">
+              <Grid.Column textAlign="center" width={3}>
                 {vph.createdAt}
               </Grid.Column>
-              <Grid.Column width={1} verticalAlign="middle">
+              <Grid.Column textAlign="center" width={2}>
                 {vph.name}
               </Grid.Column>
-              <Grid.Column width={10} floated="left">
+              <Grid.Column textAlign="left" width={5}>
                 {vph.purpose}
               </Grid.Column>
-              <Grid.Column width={1} floated="right">
+              <Grid.Column width={3}>
+                {vph.attachmentUrl && (
+                  <Image src={vph.attachmentUrl} size="medium" wrapped />
+                )}
+              </Grid.Column>
+              <Grid.Column floated="right" width={1}>
                 <Button
                   icon
                   color="blue"
@@ -188,7 +174,7 @@ export class VPHists extends React.PureComponent<VPHistProps, VPHistState> {
                   <Icon name="pencil" />
                 </Button>
               </Grid.Column>
-              <Grid.Column width={1} floated="right">
+              <Grid.Column floated="right" width={1}>
                 <Button
                   icon
                   color="red"
@@ -196,12 +182,6 @@ export class VPHists extends React.PureComponent<VPHistProps, VPHistState> {
                 >
                   <Icon name="delete" />
                 </Button>
-              </Grid.Column>
-              {vph.attachmentUrl && (
-                <Image src={vph.attachmentUrl} size="small" wrapped />
-              )}
-              <Grid.Column width={16}>
-                <Divider />
               </Grid.Column>
             </Grid.Row>
           )

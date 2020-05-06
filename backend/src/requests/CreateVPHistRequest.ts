@@ -3,5 +3,7 @@
  */
 export interface CreateVPHistRequest {
   name: string
-  dueDate: string
+  purpose: string
+  coordinateLat: string
+  coordinateLng: string
 }

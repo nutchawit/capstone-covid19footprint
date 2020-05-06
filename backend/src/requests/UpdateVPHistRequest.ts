@@ -3,6 +3,5 @@
  */
 export interface UpdateVPHistRequest {
   name: string
-  dueDate: string
-  done: boolean
+  purpose: string
 }

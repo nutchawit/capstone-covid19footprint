@@ -3,7 +3,7 @@ import { History } from 'history'
 import { Form, Button } from 'semantic-ui-react'
 import Auth from '../auth/Auth'
 import { VPHist } from '../types/VPHist';
-import { createVPHist, getUploadUrl, uploadFile } from '../api/vphist-api'
+import { patchVPHist, getUploadUrl, uploadFile } from '../api/vphist-api'
 
 enum UploadState {
   NoUpload,
@@ -11,7 +11,7 @@ enum UploadState {
   UploadingFile,
 }
 
-interface AddVPHistProps {
+interface EditVPHistProps {
   match: {
     params: {
       historyId: string
@@ -21,26 +21,20 @@ interface AddVPHistProps {
   history: History
 }
 
-interface AddVPHistState {
-  createdVPHist: any
+interface EditVPHistState {
   vPHistName: string
   vPHistPurpose: string
-  vPHistCoordinateLat: string
-  vPHistCoordinateLng: string
   vAttachmentFile: any
   attachmentUploadState: UploadState
 }
 
-export class AddVPHist extends React.PureComponent<
-  AddVPHistProps,
-  AddVPHistState
+export class EditVPHist extends React.PureComponent<
+  EditVPHistProps,
+  EditVPHistState
 > {
-  state: AddVPHistState = {
-    createdVPHist: undefined,
+  state: EditVPHistState = {
     vPHistName: '',
     vPHistPurpose: '',
-    vPHistCoordinateLat: '',
-    vPHistCoordinateLng: '',
     vAttachmentFile: undefined,
     attachmentUploadState: UploadState.NoUpload
   }
@@ -65,14 +59,6 @@ export class AddVPHist extends React.PureComponent<
     this.setState({ vPHistPurpose: event.target.value })
   }
 
-  handleVPHistCoordinateLatChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ vPHistCoordinateLat: event.target.value })
-  }
-
-  handleVPHistCoordinateLngChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ vPHistCoordinateLng: event.target.value })
-  }
-
   // Handle from change end //
 
   handleCancel = (event: React.SyntheticEvent) => {
@@ -91,27 +77,13 @@ export class AddVPHist extends React.PureComponent<
         alert('Please specific purpose!')
         return
       }
-      if (!this.state.vPHistCoordinateLat) {
-        alert('Please specific coordinate latitude!')
-        return
-      }
-      if (!this.state.vPHistCoordinateLng) {
-        alert('Please specific coordinate longitude!')
-        return
-      }
 
-      const newVPHist = await createVPHist(this.props.auth.getIdToken(), {
-        name: this.state.vPHistName,
-        purpose: this.state.vPHistPurpose,
-        coordinateLat: this.state.vPHistCoordinateLat,
-        coordinateLng: this.state.vPHistCoordinateLng,
-      })
+      await patchVPHist(this.props.auth.getIdToken(), 
+        this.props.match.params.historyId, 
+        { name: this.state.vPHistName, purpose: this.state.vPHistPurpose
+        })
 
-      this.setState({
-        createdVPHist: newVPHist
-      })
-
-      console.log('The VPHist was created with historyId:' + this.state.createdVPHist.historyId 
+      console.log('The VPHist was created with historyId:' + this.props.match.params.historyId 
         + ', continue to upload file :' + this.state.vAttachmentFile)
 
       if (this.state.vAttachmentFile) {
@@ -120,7 +92,7 @@ export class AddVPHist extends React.PureComponent<
         this.props.history.push('/vphist')
       }
 
-      alert('The VPHist created.')
+      alert('The VPHist updated.')
 
     } catch (e) {
       alert('Could not create a VPHist: ' + e.message)
@@ -133,7 +105,7 @@ export class AddVPHist extends React.PureComponent<
     try {
       this.setUploadState(UploadState.FetchingPresignedUrl)
       const uploadUrl = await getUploadUrl(this.props.auth.getIdToken(), 
-        this.state.createdVPHist.historyId)
+        this.props.match.params.historyId)
 
       console.log('Upload file ' + this.state.vAttachmentFile + ' to URL ' + uploadUrl)
 
@@ -167,7 +139,7 @@ export class AddVPHist extends React.PureComponent<
   renderForm() {
     return (
       <div>
-        <h1>Checked-In</h1>
+        <h1>Edit Checked-In</h1>
 
         <Form onSubmit={this.handleSubmit}>
           <Form.Field>
@@ -175,6 +147,7 @@ export class AddVPHist extends React.PureComponent<
             <input
               type="text"
               name="name"
+              value={this.state.vPHistName}
               onChange={this.handleNameChange}
             />
           </Form.Field>
@@ -183,32 +156,17 @@ export class AddVPHist extends React.PureComponent<
             <input
               type="text"
               name="purpose"
+              value={this.state.vPHistPurpose}
               onChange={this.handlePurposeChange}
             />
           </Form.Field>
           <Form.Field>
-            <label>Attachment File(Optional)</label>
+            <label>Attachment Image(Optional)</label>
             <input
               type="file"
-              accept="*"
+              accept="image/*"
               placeholder="Upload the attachment file"
               onChange={this.handleFileChange}
-            />
-          </Form.Field>
-          <Form.Field>
-            <label>CoordinateLat</label>
-            <input
-              type="number"
-              name="coordinateLat"
-              onChange={this.handleVPHistCoordinateLatChange}
-            />
-          </Form.Field>
-          <Form.Field>
-            <label>CoordinateLng</label>
-            <input
-              type="number"
-              name="coordinateLng"
-              onChange={this.handleVPHistCoordinateLngChange}
             />
           </Form.Field>
           {this.renderButton()}
@@ -231,7 +189,7 @@ export class AddVPHist extends React.PureComponent<
           loading={this.state.attachmentUploadState !== UploadState.NoUpload}
           type="submit"
         >
-          Save
+          Update
         </Button>
       </div>
     )

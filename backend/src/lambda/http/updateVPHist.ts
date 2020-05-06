@@ -10,9 +10,9 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   console.log('Updating VPHist')
 
   const historyId = event.pathParameters.historyId
-  const updatedTodo: UpdateVPHistRequest = JSON.parse(event.body)
+  const updatedVPHist: UpdateVPHistRequest = JSON.parse(event.body)
 
-  const existingTodos = await docClient.query({
+  const existingVPHistList = await docClient.query({
     TableName : VPHistTable,
     KeyConditionExpression: 'historyId = :historyId',
     ExpressionAttributeValues: {
@@ -20,7 +20,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     }
   }).promise()
 
-  const existingVPHist = existingTodos.Items[0]
+  const existingVPHist = existingVPHistList.Items[0]
   console.log(existingVPHist)
 
   console.log('Delete existing VPHist by historyId=', existingVPHist.historyId, ', createdAt=', existingVPHist.createdAt)
@@ -35,9 +35,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   .promise()
 
   console.log('Update new VPHist property')
-  existingVPHist.name = updatedTodo.name
-  existingVPHist.dueDate = updatedTodo.dueDate
-  existingVPHist.done = updatedTodo.done
+  existingVPHist.name = updatedVPHist.name
+  existingVPHist.purpose = updatedVPHist.purpose
 
   console.log('Create VPHist by historyId=', existingVPHist.historyId, ', createdAt=', existingVPHist.createdAt)
   await docClient

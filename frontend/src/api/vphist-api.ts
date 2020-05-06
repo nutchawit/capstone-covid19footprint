@@ -4,7 +4,7 @@ import { CreateVPHistRequest } from '../types/CreateVPHistRequest';
 import Axios from 'axios'
 import { UpdateVPHistRequest } from '../types/UpdateVPHistRequest';
 
-export async function getVPHist(idToken: string): Promise<VPHist[]> {
+export async function getVPHistList(idToken: string): Promise<VPHist[]> {
   console.log('Fetching todos')
 
   const response = await Axios.get(`${apiEndpoint}/vphist`, {

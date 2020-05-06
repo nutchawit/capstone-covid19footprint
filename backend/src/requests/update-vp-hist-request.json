@@ -1,22 +1,18 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "update-todo",
+  "title": "update-vphist",
   "type": "object",
   "properties": {
     "name": {
       "type": "string"
     },
-    "dueDate": {
+    "purpose": {
       "type": "string"
-    },
-    "done": {
-      "type": "boolean"
     }
   },
   "required": [
     "name",
-    "dueDate",
-    "done"
+    "purpose"
   ],
   "additionalProperties": false
 }

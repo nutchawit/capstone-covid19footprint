@@ -1,18 +1,26 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "create-todo",
+  "title": "create-vphist",
   "type": "object",
   "properties": {
     "name": {
       "type": "string"
     },
-    "dueDate": {
+    "purpose": {
       "type": "string"
+    },
+    "coordinateLat": {
+      "type": "number"
+    },
+    "coordinateLng": {
+      "type": "number"
     }
   },
   "required": [
     "name",
-    "dueDate"
+    "purpose",
+    "coordinateLat",
+    "coordinateLng"
   ],
   "additionalProperties": false
 }

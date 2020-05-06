@@ -3,7 +3,7 @@ import { Link, Route, Router, Switch } from 'react-router-dom'
 import { Grid, Menu, Segment } from 'semantic-ui-react'
 
 import Auth from './auth/Auth'
-import { EditTodo } from './components/EditTodo'
+import { EditVPHist } from './components/EditVPHist'
 import { LogIn } from './components/LogIn'
 import { NotFound } from './components/NotFound'
 import { VPHists } from './components/VPHist'
@@ -117,7 +117,7 @@ export default class App extends Component<AppProps, AppState> {
           path="/vphist/:historyId/edit"
           exact
           render={props => {
-            return <EditTodo {...props} auth={this.props.auth} />
+            return <EditVPHist {...props} auth={this.props.auth} />
           }}
         />
 
